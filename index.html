@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<title>90-Day Plan</title>
+<title>Glow-Up</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Glow-Up">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F5F2EB">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -47,19 +53,24 @@ h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
   background:var(--card);border:1px solid var(--line);border-radius:14px;
   padding:22px 22px 18px;margin-bottom:16px;
 }
-.rail{position:relative;height:4px;border-radius:2px;display:flex;overflow:visible;margin:16px 0 12px;background:var(--line);}
+.rail{position:relative;height:32px;margin:16px 0 12px;cursor:pointer;}
+.rail .track{position:absolute;top:14px;left:0;right:0;height:4px;border-radius:2px;display:flex;}
 .rail .seg{flex:1;}
 .rail .seg.p1{background:var(--accent);border-radius:2px 0 0 2px;}
 .rail .seg.p2{background:var(--accent);opacity:.55;}
 .rail .seg.p3{background:var(--accent);opacity:.3;border-radius:0 2px 2px 0;}
 .rail .marker{
-  position:absolute;top:-5px;width:14px;height:14px;border-radius:50%;
-  background:var(--card);border:2.5px solid var(--accent);
+  position:absolute;top:7px;width:20px;height:20px;border-radius:50%;
+  background:var(--card);border:3px solid var(--accent);
   transform:translateX(-50%);
-  transition:left .3s ease;
+  transition:left .15s ease;
+  cursor:grab;
+  touch-action:none;
 }
+.rail .marker:active{cursor:grabbing;transform:translateX(-50%) scale(1.15);}
 .rail-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);letter-spacing:.02em;}
-.rail-labels span{flex:1;text-align:center;}
+.rail-labels span{flex:1;text-align:center;line-height:1.55;}
+.rail-labels b{display:block;font-weight:600;color:var(--ink);font-size:11px;letter-spacing:.02em;}
 
 .daynav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px;}
 .daynav button{
@@ -79,8 +90,7 @@ h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
   padding:6px 14px;border-radius:20px;cursor:pointer;
 }
 .utilrow input[type=date]{
-  background:var(--card-2);border:1px solid var(--line);color:var(--ink);
-  border-radius:20px;padding:5px 10px;font-size:12px;font-family:inherit;
+  position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;
 }
 .utilrow button:hover{color:var(--accent);border-color:var(--accent);}
 
@@ -114,18 +124,42 @@ h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
 .card.done{background:var(--card-2);border-color:var(--accent-soft);}
 .checkbox{
   flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);
-  margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:14px;color:transparent;transition:all .15s;background:transparent;
+  margin-top:1px;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background:transparent;position:relative;
   -webkit-tap-highlight-color:transparent;
 }
-.checkbox.checked{background:var(--accent);border-color:var(--accent);color:#fff;}
-.cbody{flex:1;}
+.checkbox:checked{background:var(--accent);border-color:var(--accent);}
+.checkbox:checked::after{
+  content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;
+}
+.cbody{flex:1;min-width:0;}
 .cbody .top{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
 .cbody .icon{font-size:16px;}
 .cbody .title{font-weight:600;font-size:14.5px;}
 .cbody .time{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:1px 9px;border-radius:10px;}
+.cbody .edit-btn{
+  margin-left:auto;background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;
+  padding:2px 4px;-webkit-tap-highlight-color:transparent;
+}
+.cbody .edit-btn:hover{color:var(--accent);}
 .cbody .desc{font-size:13px;color:var(--muted);line-height:1.55;margin-top:2px;}
+.cbody .desc.custom{color:var(--ink);}
 .card.done .title{text-decoration:line-through;color:var(--muted);}
+
+.edit-area{margin-top:4px;}
+.edit-area textarea{
+  width:100%;min-height:54px;font-family:inherit;font-size:13px;line-height:1.5;
+  border:1px solid var(--accent-soft);border-radius:10px;padding:8px 10px;
+  background:var(--card-2);color:var(--ink);resize:vertical;
+}
+.edit-actions{display:flex;gap:8px;margin-top:6px;}
+.edit-actions button{
+  font-size:11.5px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  padding:4px 11px;border-radius:14px;cursor:pointer;
+}
+.edit-actions button.save{background:var(--accent);border-color:var(--accent);color:#fff;}
+.edit-actions button:hover{border-color:var(--accent);}
 
 .summary{
   display:flex;justify-content:space-between;align-items:center;
@@ -161,14 +195,16 @@ h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
   </div>
 
   <div class="rail-card">
-    <div class="rail">
-      <div class="seg p1"></div><div class="seg p2"></div><div class="seg p3"></div>
+    <div class="rail" id="rail">
+      <div class="track">
+        <div class="seg p1"></div><div class="seg p2"></div><div class="seg p3"></div>
+      </div>
       <div class="marker" id="marker"></div>
     </div>
     <div class="rail-labels">
-      <span>Month 1 · Foundations</span>
-      <span>Month 2 · Building</span>
-      <span>Month 3 · Specializing</span>
+      <span><b>Month 1</b>Foundations</span>
+      <span><b>Month 2</b>Building</span>
+      <span><b>Month 3</b>Specializing</span>
     </div>
 
     <div class="daynav">
@@ -184,7 +220,8 @@ h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
 
     <div class="utilrow">
       <button id="todayBtn">Jump to today</button>
-      <input type="date" id="datePick">
+      <button id="visitDateBtn">Visit date</button>
+      <input type="date" id="datePick" tabindex="-1" aria-hidden="true">
     </div>
   </div>
 
@@ -392,6 +429,7 @@ function fmtDate(d){
 function mod(n,m){ return ((n % m) + m) % m; }
 
 const CORE_KEYS = ["ex1","analyst","freelance","ex2","pd1","pd2"];
+let editingKey = null; // which item (on the current day) is currently being edited, if any
 
 async function loadDay(idx){
   try{
@@ -441,6 +479,10 @@ async function render(){
   document.getElementById('daySmall').textContent = fmtDate(date);
   document.getElementById('datePick').value = date.toISOString().slice(0,10);
 
+  const shortMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById('visitDateBtn').textContent =
+    "Visit date · " + date.getDate() + " " + shortMonths[date.getMonth()] + " " + date.getFullYear();
+
   const built = buildItems(dayIndex);
   const phaseLabel = phaseNames[built.phase];
   document.getElementById('footnote').textContent =
@@ -464,19 +506,66 @@ async function render(){
   built.items.forEach(item=>{
     const checked = !!state[item.key];
     if(checked) coreDone++;
+    const noteKey = item.key + '_note';
+    const hasCustom = typeof state[noteKey] === 'string' && state[noteKey].length > 0;
+    const displayText = hasCustom ? state[noteKey] : item.desc;
+
     const card = document.createElement('div');
     card.className = "card" + (checked ? " done" : "");
+
+    const bodyHTML = (editingKey === item.key)
+      ? '<div class="edit-area">'+
+          '<textarea id="editTA"></textarea>'+
+          '<div class="edit-actions">'+
+            '<button class="save" data-act="save">Save</button>'+
+            '<button data-act="cancel">Cancel</button>'+
+            (hasCustom ? '<button data-act="reset">Use suggestion</button>' : '')+
+          '</div>'+
+        '</div>'
+      : '<div class="desc'+(hasCustom?' custom':'')+'">'+escapeHTML(displayText)+'</div>';
+
     card.innerHTML =
-      '<div class="checkbox '+(checked?'checked':'')+'">✓</div>'+
+      '<input type="checkbox" class="checkbox" '+(checked?'checked':'')+' />'+
       '<div class="cbody">'+
-        '<div class="top"><span class="icon">'+item.icon+'</span><span class="title">'+item.title+'</span><span class="time">'+item.time+'</span></div>'+
-        '<div class="desc">'+item.desc+'</div>'+
+        '<div class="top"><span class="icon">'+item.icon+'</span><span class="title">'+item.title+'</span><span class="time">'+item.time+'</span>'+
+          (editingKey===item.key ? '' : '<button class="edit-btn" data-act="edit">✎</button>')+
+        '</div>'+
+        bodyHTML+
       '</div>';
-    card.querySelector('.checkbox').addEventListener('click', async ()=>{
-      state[item.key] = !state[item.key];
+
+    card.querySelector('.checkbox').addEventListener('change', async (e)=>{
+      state[item.key] = e.target.checked;
       await saveDay(dayIndex, state);
       render();
     });
+
+    const editBtn = card.querySelector('[data-act="edit"]');
+    if(editBtn) editBtn.addEventListener('click', ()=>{ editingKey = item.key; render(); });
+
+    const ta = card.querySelector('#editTA');
+    if(ta){
+      ta.value = displayText;
+      setTimeout(()=>{ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 0);
+    }
+    const saveBtn = card.querySelector('[data-act="save"]');
+    if(saveBtn) saveBtn.addEventListener('click', async ()=>{
+      const val = ta.value.trim();
+      if(val.length === 0 || val === item.desc) delete state[noteKey];
+      else state[noteKey] = val;
+      editingKey = null;
+      await saveDay(dayIndex, state);
+      render();
+    });
+    const cancelBtn = card.querySelector('[data-act="cancel"]');
+    if(cancelBtn) cancelBtn.addEventListener('click', ()=>{ editingKey = null; render(); });
+    const resetBtn = card.querySelector('[data-act="reset"]');
+    if(resetBtn) resetBtn.addEventListener('click', async ()=>{
+      delete state[noteKey];
+      editingKey = null;
+      await saveDay(dayIndex, state);
+      render();
+    });
+
     cardsEl.appendChild(card);
   });
 
@@ -485,6 +574,10 @@ async function render(){
   document.getElementById('sumPct').textContent = pctDone + "%";
 
   renderWeekDots();
+}
+
+function escapeHTML(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
 async function renderWeekDots(){
@@ -505,21 +598,55 @@ async function renderWeekDots(){
     dot.className = cls;
     dot.title = weekdayNames[i];
     dot.style.cursor = "pointer";
-    dot.addEventListener('click', ()=>{ dayIndex = idx; render(); });
+    dot.addEventListener('click', ()=>{ editingKey=null; dayIndex = idx; render(); });
     el.appendChild(dot);
   }
 }
 
-document.getElementById('prevBtn').addEventListener('click', ()=>{ dayIndex--; render(); });
-document.getElementById('nextBtn').addEventListener('click', ()=>{ dayIndex++; render(); });
+document.getElementById('prevBtn').addEventListener('click', ()=>{ editingKey=null; dayIndex--; render(); });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ editingKey=null; dayIndex++; render(); });
 document.getElementById('todayBtn').addEventListener('click', ()=>{
+  editingKey=null;
   const real = new Date(); real.setHours(0,0,0,0);
   dayIndex = Math.max(0, indexFromDate(real)); render();
 });
+document.getElementById('visitDateBtn').addEventListener('click', ()=>{
+  const dp = document.getElementById('datePick');
+  if(dp.showPicker){ try{ dp.showPicker(); return; }catch(e){} }
+  dp.focus();
+});
 document.getElementById('datePick').addEventListener('change', (e)=>{
+  editingKey=null;
   const d = new Date(e.target.value + "T00:00:00");
   dayIndex = indexFromDate(d); render();
 });
+
+// ---- drag-to-scrub on the rail ----
+(function(){
+  const rail = document.getElementById('rail');
+  let dragging = false;
+
+  function dayFromClientX(clientX){
+    const rect = rail.getBoundingClientRect();
+    const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round(frac * 89);
+  }
+
+  rail.addEventListener('pointerdown', (e)=>{
+    dragging = true;
+    editingKey = null;
+    rail.setPointerCapture(e.pointerId);
+    dayIndex = dayFromClientX(e.clientX);
+    render();
+  });
+  rail.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    const idx = dayFromClientX(e.clientX);
+    if(idx !== dayIndex){ dayIndex = idx; render(); }
+  });
+  rail.addEventListener('pointerup', ()=>{ dragging = false; });
+  rail.addEventListener('pointercancel', ()=>{ dragging = false; });
+})();
 
 await initStart();
 const real = new Date(); real.setHours(0,0,0,0);
