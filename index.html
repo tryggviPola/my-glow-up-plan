@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Glow-Up</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Glow-Up">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F5F2EB">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg: #F5F2EB;
+  --card: #FFFFFF;
+  --card-2: #FBF8F1;
+  --ink: #2B2722;
+  --muted: #84796D;
+  --line: #E4DECF;
+  --accent: #C2603F;
+  --accent-soft: #F1E2D8;
+  --sage: #6E7F66;
+  --sage-soft: #E7ECE2;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{
+  max-width:680px;margin:0 auto;
+  padding:32px 16px calc(48px + env(safe-area-inset-bottom));
+}
+
+h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
+
+.header{text-align:center;margin-bottom:28px;}
+.header .eyebrow{
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:10px;
+}
+.header h1{font-size:32px;font-weight:600;letter-spacing:-.01em;}
+.header p{color:var(--muted);font-size:14px;margin-top:8px;}
+
+/* ---- phase rail (signature element) ---- */
+.rail-card{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:22px 22px 18px;margin-bottom:16px;
+}
+.rail{position:relative;height:32px;margin:16px 0 12px;cursor:pointer;}
+.rail .track{position:absolute;top:14px;left:0;right:0;height:4px;border-radius:2px;display:flex;}
+.rail .seg{flex:1;}
+.rail .seg.p1{background:var(--accent);border-radius:2px 0 0 2px;}
+.rail .seg.p2{background:var(--accent);opacity:.55;}
+.rail .seg.p3{background:var(--accent);opacity:.3;border-radius:0 2px 2px 0;}
+.rail .marker{
+  position:absolute;top:7px;width:20px;height:20px;border-radius:50%;
+  background:var(--card);border:3px solid var(--accent);
+  transform:translateX(-50%);
+  transition:left .15s ease;
+  cursor:grab;
+  touch-action:none;
+}
+.rail .marker:active{cursor:grabbing;transform:translateX(-50%) scale(1.15);}
+.rail-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);letter-spacing:.02em;}
+.rail-labels span{flex:1;text-align:center;line-height:1.55;}
+.rail-labels b{display:block;font-weight:600;color:var(--ink);font-size:11px;letter-spacing:.02em;}
+
+.daynav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px;}
+.daynav button{
+  background:var(--card);border:1px solid var(--line);color:var(--ink);
+  width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.daynav button:hover{border-color:var(--accent);color:var(--accent);}
+.daynav .daylabel{text-align:center;min-width:190px;}
+.daynav .daylabel .big{font-size:15px;font-weight:600;font-family:'Fraunces',serif;}
+.daynav .daylabel .small{font-size:12px;color:var(--muted);margin-top:1px;}
+
+.utilrow{display:flex;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.utilrow button, #visitDateLabel{
+  font-size:12px;background:transparent;border:1px solid var(--line);color:var(--muted);
+  padding:6px 14px;border-radius:20px;cursor:pointer;display:inline-block;
+}
+.visitDateWrap{position:relative;display:inline-flex;}
+.visitDateWrap input[type=date]{
+  position:absolute;inset:0;width:100%;height:100%;opacity:0;
+  border:none;margin:0;padding:0;cursor:pointer;
+}
+#visitDateLabel{pointer-events:none;}
+.utilrow button:hover{color:var(--accent);border-color:var(--accent);}
+
+/* week dots */
+.weekdots{display:flex;justify-content:center;gap:8px;margin-top:16px;}
+.weekdots .dot{width:7px;height:7px;border-radius:50%;background:var(--line);cursor:pointer;}
+.weekdots .dot.today{box-shadow:0 0 0 3px var(--accent-soft);}
+.weekdots .dot.full{background:var(--accent);}
+.weekdots .dot.partial{background:var(--accent);opacity:.4;}
+
+/* weekly focus banner */
+.focus{
+  background:var(--card-2);border:1px solid var(--line);border-radius:14px;
+  padding:18px 20px;margin-bottom:16px;
+}
+.focus .label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;}
+.focus .row{display:flex;gap:10px;font-size:13.5px;margin-bottom:8px;align-items:flex-start;line-height:1.4;}
+.focus .row:last-child{margin-bottom:0;}
+.focus .tag{
+  flex:0 0 auto;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;
+  background:var(--accent-soft);color:var(--accent);white-space:nowrap;margin-top:1px;
+}
+.focus .row.fl .tag{background:var(--sage-soft);color:var(--sage);}
+
+/* checklist cards */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;
+  transition:border-color .15s, background .15s;
+}
+.card.done{background:var(--card-2);border-color:var(--accent-soft);}
+.checkbox{
+  flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);
+  margin-top:1px;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background:transparent;position:relative;
+  -webkit-tap-highlight-color:transparent;
+}
+.checkbox:checked{background:var(--accent);border-color:var(--accent);}
+.checkbox:checked::after{
+  content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;
+}
+.cbody{flex:1;min-width:0;}
+.cbody .top{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
+.cbody .icon{font-size:16px;}
+.cbody .title{font-weight:600;font-size:14.5px;}
+.cbody .time{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:1px 9px;border-radius:10px;}
+.cbody .edit-btn{
+  margin-left:auto;background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;
+  padding:2px 4px;-webkit-tap-highlight-color:transparent;
+}
+.cbody .edit-btn:hover{color:var(--accent);}
+.cbody .desc{font-size:13px;color:var(--muted);line-height:1.55;margin-top:2px;}
+.cbody .desc.custom{color:var(--ink);}
+.card.done .title{text-decoration:line-through;color:var(--muted);}
+
+.edit-area{margin-top:4px;}
+.edit-area textarea{
+  width:100%;min-height:54px;font-family:inherit;font-size:13px;line-height:1.5;
+  border:1px solid var(--accent-soft);border-radius:10px;padding:8px 10px;
+  background:var(--card-2);color:var(--ink);resize:vertical;
+}
+.edit-actions{display:flex;gap:8px;margin-top:6px;}
+.edit-actions button{
+  font-size:11.5px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  padding:4px 11px;border-radius:14px;cursor:pointer;
+}
+.edit-actions button.save{background:var(--accent);border-color:var(--accent);color:#fff;}
+.edit-actions button:hover{border-color:var(--accent);}
+
+.summary{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px 20px;margin-top:16px;font-size:13px;color:var(--muted);
+}
+.summary .pct{color:var(--ink);font-weight:600;font-family:'Fraunces',serif;font-size:19px;}
+
+.footnote{text-align:center;color:var(--muted);font-size:11.5px;margin-top:24px;line-height:1.7;}
+
+@media (max-width: 380px){
+  .header h1{font-size:26px;}
+  .daynav{gap:10px;}
+  .daynav .daylabel{min-width:0;}
+}
+</style>
+</head>
+<body>
+<noscript>
+  <div style="max-width:480px;margin:60px auto;padding:24px;background:#FBF8F1;border:1px solid #E4DECF;border-radius:14px;font-family:sans-serif;color:#2B2722;text-align:center;">
+    <p style="font-weight:600;margin:0 0 10px;">This needs to open in Safari, not a file preview.</p>
+    <p style="color:#84796D;font-size:14px;line-height:1.6;margin:0;">
+      Tap the <strong>Share</strong> icon at the bottom of this preview and choose <strong>"Open in Safari"</strong> (or "Open in Browser"). Once it's open in Safari, you can add it to your Home Screen so it always opens correctly from now on.
+    </p>
+  </div>
+</noscript>
+<div class="wrap">
+
+  <div class="header">
+    <div class="eyebrow">90-Day Program</div>
+    <h1>Your Glow-Up Era</h1>
+    <p>Skills · Income · Body · Mind — one day at a time</p>
+  </div>
+
+  <div class="rail-card">
+    <div class="rail" id="rail">
+      <div class="track">
+        <div class="seg p1"></div><div class="seg p2"></div><div class="seg p3"></div>
+      </div>
+      <div class="marker" id="marker"></div>
+    </div>
+    <div class="rail-labels">
+      <span><b>Month 1</b>Foundations</span>
+      <span><b>Month 2</b>Building</span>
+      <span><b>Month 3</b>Specializing</span>
+    </div>
+
+    <div class="daynav">
+      <button id="prevBtn">‹</button>
+      <div class="daylabel">
+        <div class="big" id="dayBig">Day 1</div>
+        <div class="small" id="daySmall">—</div>
+      </div>
+      <button id="nextBtn">›</button>
+    </div>
+
+    <div class="weekdots" id="weekdots"></div>
+
+    <div class="utilrow">
+      <button id="todayBtn">Jump to today</button>
+      <div class="visitDateWrap">
+        <span id="visitDateLabel">Visit date</span>
+        <input type="date" id="datePick">
+      </div>
+    </div>
+  </div>
+
+  <div class="focus" id="focusBanner"></div>
+
+  <div id="cards"></div>
+
+  <div class="summary">
+    <span>Day <span id="sumDay">1</span> of 90 completed</span>
+    <span class="pct" id="sumPct">0%</span>
+  </div>
+
+  <div class="footnote" id="footnote"></div>
+
+</div>
+
+<script>
+(async function(){
+
+// ---------- content data ----------
+const analystWeekTitles = [
+"Excel and statistics basics",
+"SQL fundamentals",
+"More SQL + intro Python",
+"Python for data: pandas and numpy",
+"Data visualization",
+"Portfolio project 1",
+"Intro to AI/ML concepts",
+"More ML + prep project 2",
+"Portfolio project 2",
+"Resume, LinkedIn, positioning",
+"Interview prep",
+"Start applying"
+];
+
+// flat list of 84 daily topics (12 weeks x 7 days), taken from your existing roadmap
+const analystDays = [
+"Excel interface; SUM, AVERAGE, COUNT, basic formulas",
+"IF statements and conditional formatting",
+"VLOOKUP/XLOOKUP and INDEX/MATCH",
+"Pivot tables: build your first 3",
+"Pivot charts and a simple 1-page dashboard",
+"Stats basics: mean, median, mode, std deviation",
+"Correlation and distributions; review quiz",
+"Set up SQLite/PostgreSQL; SELECT, FROM, WHERE",
+"ORDER BY, LIMIT, DISTINCT",
+"Aggregate functions: COUNT, SUM, AVG with GROUP BY",
+"HAVING clause; filtering grouped data",
+"INNER JOIN and LEFT JOIN across 2+ tables",
+"Subqueries and CASE statements",
+"10 practice queries against a public dataset",
+"Multi-table joins on a real schema",
+"Window functions: RANK, ROW_NUMBER, LAG/LEAD",
+"10 SQL practice problems, timed",
+"Install Python + Jupyter; variables, data types",
+"Loops, conditionals, writing functions",
+"Lists, dictionaries, list comprehensions",
+"Review: 10 Python practice problems",
+"pandas basics: Series, DataFrame, read_csv",
+"Filtering, selecting, and indexing rows/columns",
+"GroupBy and aggregation in pandas",
+"Merging and joining DataFrames",
+"Handling missing data and cleaning messy columns",
+"numpy basics: arrays and vectorized operations",
+"Exercise: clean a genuinely messy dataset start to finish",
+"matplotlib basics: line, bar, scatter plots",
+"seaborn: distributions and categorical plots",
+"Choosing the right chart for the question",
+"Intro to Tableau Public or Power BI (free tier)",
+"Build your first interactive dashboard",
+"Storytelling with data: structuring an insight",
+"Polish and practice with a sample dataset",
+"Pick a dataset; define 3 concrete questions to answer",
+"Clean and prepare the data",
+"Exploratory analysis: find the real patterns",
+"Build the visualizations that support your findings",
+"Write up findings as a short narrative",
+"Build a clean README; push the project to GitHub",
+"Get feedback from 1-2 people, polish",
+"What ML is: supervised vs unsupervised, key terms",
+"Linear regression: theory and intuition",
+"scikit-learn basics; train/test split",
+"Build your first regression model",
+"Classification basics: logistic regression",
+"Model evaluation: accuracy, precision, recall",
+"Practice exercise applying a model end to end",
+"Decision trees and random forest, conceptually",
+"Overfitting and cross-validation",
+"Feature engineering basics",
+"Pick the dataset for portfolio project 2",
+"Define the questions/goals for project 2",
+"Start cleaning the project 2 dataset",
+"Catch-up day: review anything shaky so far",
+"Exploratory analysis on the project 2 dataset",
+"Write SQL queries against the dataset where relevant",
+"Build the visualizations",
+"Add a simple ML model if it fits the question",
+"Write up the findings clearly",
+"Publish to GitHub; write a short LinkedIn post about it",
+"Buffer day: polish both portfolio projects",
+"Draft resume v1 highlighting tools and projects",
+"List target job titles and 15-20 target companies",
+"Rewrite LinkedIn headline and About section",
+"Add both projects to LinkedIn with short writeups",
+"Get resume feedback from 2 people",
+"Revise resume based on feedback",
+"Finalize resume and LinkedIn profile",
+"Practice common SQL interview questions",
+"Practice common stats interview questions",
+"Practice explaining project 1 in under 2 minutes",
+"Practice explaining project 2 in under 2 minutes",
+"Mock interview #1 (friend, mentor, or AI roleplay)",
+"Review mock interview feedback, fix weak spots",
+"Mock interview #2",
+"Set up an application tracking sheet",
+"Apply to 5 entry-level roles",
+"Reach out to 3 people in the field for informational chats",
+"Apply to 5 more roles",
+"Follow up on applications from over a week ago",
+"Continue networking outreach",
+"Review the week; adjust plan based on response rate"
+];
+
+function analystTopic(wrapped){
+  if(wrapped < analystDays.length) return analystDays[wrapped];
+  return "Buffer day — revisit anything shaky from the 12 weeks, or keep pushing on applications.";
+}
+
+const freelanceWeeks = [
+"Set up your profiles (Upwork/Fiverr/LinkedIn). Define one clear service to offer.",
+"Send 5 proposals a day. Start a simple portfolio page.",
+"Keep pitching daily + finish a second portfolio piece.",
+"Deliver your first project with excellence. Ask for a review.",
+"Get visible — share your work in 2 online communities.",
+"Take on a second client. Track your time and your income.",
+"Turn finished work into a case study. Reach out to 5 new leads.",
+"Consider a second service to offer. Review this month's income vs your goal.",
+"Ask 3 past clients for referrals. Tidy your profile based on what's working.",
+"Raise your rate by 10–20%. Pitch one tier higher.",
+"Build simple systems — templates, contract, invoice — so future-you moves faster.",
+"Review the whole quarter. Set your next 90-day freelance goal."
+];
+
+const exerciseAM = [
+"Brisk walk or light cardio — just get the heart rate up gently.",
+"Cardio intervals — walk/jog or a home cardio video.",
+"Whatever cardio you actually enjoy — keep that heart pumping."
+];
+const exercisePM = [
+"Beginner bodyweight circuit — squats, wall push-ups, planks.",
+"Strength training — legs, core, arms, light weights or bands.",
+"Strength + stretch — finish the day calm and loose."
+];
+
+const poets = ["Mary Oliver","Pablo Neruda","Rumi","Maya Angelou","Walt Whitman","Emily Dickinson","Khalil Gibran","Langston Hughes","Sylvia Plath","Rainer Maria Rilke","William Wordsworth","Wisława Szymborska"];
+const cosmos = ["The Big Bang","Black holes","Our Solar System","The life cycle of stars","Galaxies","Exoplanets","The Moon landing","Mars exploration","Dark matter & dark energy","The James Webb telescope","Time & relativity","The future of space travel"];
+const painters = ["Vincent van Gogh","Claude Monet","Frida Kahlo","Johannes Vermeer","Pablo Picasso","Leonardo da Vinci","Gustav Klimt","Rembrandt","Salvador Dalí","Georgia O'Keeffe","Caravaggio","Katsushika Hokusai"];
+const architecture = ["The Parthenon & Greek columns","Roman arches & aqueducts","Gothic cathedrals","Renaissance domes of Florence","Baroque architecture","Islamic architecture — the Alhambra","Traditional Japanese architecture","Bauhaus & Modernism","Art Deco — the Chrysler Building","Brutalism","Sustainable / green architecture","Futuristic architecture — Zaha Hadid"];
+
+const weekdayNames = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+function weekTopics(w){
+  return {poet:poets[w], cosmos:cosmos[w], painter:painters[w], arch:architecture[w]};
+}
+
+function personalDev(dayIndexMod, weekIdx){
+  const wd = dayIndexMod % 7; // 0 = Mon
+  const t = weekTopics(weekIdx);
+  const reading = {tag:"Reading", text:"1 hour with any book you're enjoying right now — fiction or non-fiction, your call."};
+  const poetry = {tag:"Poetry", text:"Read & sit with a poem by "+t.poet+"."};
+  const cosmosItem = {tag:"Cosmos", text:"Watch or listen to something on: "+t.cosmos+"."};
+  const painterItem = {tag:"Art", text:"Spend time with the painter "+t.painter+" — a few works, a short bio."};
+  const archItem = {tag:"Architecture", text:t.arch+"."};
+  const freeChoice = {tag:"Free choice", text:"Revisit your favorite discovery from this week. Write 3 lines on why you loved it."};
+  const reflection = {tag:"Reflection", text:"Journal: what felt good this week, what was hard, one thing to improve next week."};
+  switch(wd){
+    case 0: return [poetry, freeChoice];          // Monday — no reading, so poetry never lands on a reading day
+    case 1: return [reading, cosmosItem];
+    case 2: return [reading, painterItem];
+    case 3: return [reading, archItem];
+    case 4: return [reading, freeChoice];
+    case 5: return [cosmosItem, painterItem];     // Saturday — double up, no reading needed
+    case 6: return [archItem, reflection];        // Sunday — close the week with a look back
+  }
+}
+
+const phaseNames = ["Foundations","Building","Specializing"];
+
+// ---------- state ----------
+let startDateStr = null; // YYYY-MM-DD, day 0 of the program
+let dayIndex = 0;        // can go negative/over 89, content wraps
+
+function dateFromIndex(idx){
+  const d = new Date(startDateStr + "T00:00:00");
+  d.setDate(d.getDate() + idx);
+  return d;
+}
+function indexFromDate(d){
+  const start = new Date(startDateStr + "T00:00:00");
+  return Math.round((d - start) / 86400000);
+}
+function fmtDate(d){
+  return d.toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric', year:'numeric'});
+}
+function mod(n,m){ return ((n % m) + m) % m; }
+
+const CORE_KEYS = ["ex1","analyst","freelance","ex2","pd1","pd2"];
+let editingKey = null; // which item (on the current day) is currently being edited, if any
+
+const STORAGE_PREFIX = 'glowup90:';
+
+async function loadDay(idx){
+  try{
+    const raw = localStorage.getItem(STORAGE_PREFIX + 'day:' + idx);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+async function saveDay(idx, state){
+  try{ localStorage.setItem(STORAGE_PREFIX + 'day:' + idx, JSON.stringify(state)); }
+  catch(e){ console.error('storage save failed', e); }
+}
+async function initStart(){
+  try{
+    const v = localStorage.getItem(STORAGE_PREFIX + 'startDate');
+    if(v){ startDateStr = v; return; }
+  }catch(e){}
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  startDateStr = tomorrow.toISOString().slice(0,10);
+  try{ localStorage.setItem(STORAGE_PREFIX + 'startDate', startDateStr); }catch(e){}
+}
+
+// ---------- render ----------
+function buildItems(idx){
+  const wrapped = mod(idx, 90);
+  const weekIdx = Math.min(11, Math.floor(wrapped/7));
+  const wd = mod(idx,7);
+  const phase = Math.min(2, Math.floor(weekIdx/4));
+  const pd = personalDev(wrapped, weekIdx);
+  return {
+    weekIdx, phase, wd,
+    items: [
+      {key:"ex1", icon:"🏃", title:"Morning movement", time:"30 min", desc:exerciseAM[phase]},
+      {key:"analyst", icon:"📊", title:"Analyst training", time:"2–3 hrs", desc:analystTopic(wrapped)},
+      {key:"freelance", icon:"💻", title:"Freelance work", time:"3 hrs", desc:freelanceWeeks[weekIdx]},
+      {key:"ex2", icon:"🧘", title:"Evening movement", time:"30 min", desc:exercisePM[phase]},
+      {key:"pd1", icon:"📚", title:pd[0].tag, time:"1 hr", desc:pd[0].text},
+      {key:"pd2", icon:"✨", title:pd[1].tag, time:"1 hr", desc:pd[1].text},
+    ]
+  };
+}
+
+async function render(){
+  const date = dateFromIndex(dayIndex);
+  document.getElementById('dayBig').textContent =
+    "Day " + (dayIndex+1) + (dayIndex<0 || dayIndex>89 ? " (extra)" : " of 90");
+  document.getElementById('daySmall').textContent = fmtDate(date);
+  document.getElementById('datePick').value = date.toISOString().slice(0,10);
+
+  const shortMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById('visitDateLabel').textContent =
+    "Visit date · " + date.getDate() + " " + shortMonths[date.getMonth()] + " " + date.getFullYear();
+
+  const built = buildItems(dayIndex);
+  const phaseLabel = phaseNames[built.phase];
+  document.getElementById('footnote').textContent =
+    "Phase: " + phaseLabel + " · Week " + (built.weekIdx+1) + " of 12 · " + weekdayNames[built.wd] +
+    "  —  Times are suggestions. Move things around to fit your real life. Showing up matters more than the clock.";
+
+  // marker on rail
+  const pct = Math.max(0, Math.min(89, mod(dayIndex,90))) / 89 * 100;
+  document.getElementById('marker').style.left = pct + "%";
+
+  // focus banner
+  document.getElementById('focusBanner').innerHTML =
+    '<div class="label">This week&#8217;s focus — Week '+(built.weekIdx+1)+' · '+phaseLabel+'</div>'+
+    '<div class="row"><span class="tag">Analyst</span><span>'+analystWeekTitles[built.weekIdx]+'</span></div>'+
+    '<div class="row fl"><span class="tag">Freelance</span><span>'+freelanceWeeks[built.weekIdx]+'</span></div>';
+
+  const state = await loadDay(dayIndex);
+  const cardsEl = document.getElementById('cards');
+  cardsEl.innerHTML = "";
+  let coreDone = 0;
+  built.items.forEach(item=>{
+    const checked = !!state[item.key];
+    if(checked) coreDone++;
+    const noteKey = item.key + '_note';
+    const hasCustom = typeof state[noteKey] === 'string' && state[noteKey].length > 0;
+    const displayText = hasCustom ? state[noteKey] : item.desc;
+
+    const card = document.createElement('div');
+    card.className = "card" + (checked ? " done" : "");
+
+    const bodyHTML = (editingKey === item.key)
+      ? '<div class="edit-area">'+
+          '<textarea id="editTA"></textarea>'+
+          '<div class="edit-actions">'+
+            '<button class="save" data-act="save">Save</button>'+
+            '<button data-act="cancel">Cancel</button>'+
+            (hasCustom ? '<button data-act="reset">Use suggestion</button>' : '')+
+          '</div>'+
+        '</div>'
+      : '<div class="desc'+(hasCustom?' custom':'')+'">'+escapeHTML(displayText)+'</div>';
+
+    card.innerHTML =
+      '<input type="checkbox" class="checkbox" '+(checked?'checked':'')+' />'+
+      '<div class="cbody">'+
+        '<div class="top"><span class="icon">'+item.icon+'</span><span class="title">'+item.title+'</span><span class="time">'+item.time+'</span>'+
+          (editingKey===item.key ? '' : '<button class="edit-btn" data-act="edit">✎</button>')+
+        '</div>'+
+        bodyHTML+
+      '</div>';
+
+    card.querySelector('.checkbox').addEventListener('change', async (e)=>{
+      state[item.key] = e.target.checked;
+      await saveDay(dayIndex, state);
+      render();
+    });
+
+    const editBtn = card.querySelector('[data-act="edit"]');
+    if(editBtn) editBtn.addEventListener('click', ()=>{ editingKey = item.key; render(); });
+
+    const ta = card.querySelector('#editTA');
+    if(ta){
+      ta.value = displayText;
+      setTimeout(()=>{ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 0);
+    }
+    const saveBtn = card.querySelector('[data-act="save"]');
+    if(saveBtn) saveBtn.addEventListener('click', async ()=>{
+      const val = ta.value.trim();
+      if(val.length === 0 || val === item.desc) delete state[noteKey];
+      else state[noteKey] = val;
+      editingKey = null;
+      await saveDay(dayIndex, state);
+      render();
+    });
+    const cancelBtn = card.querySelector('[data-act="cancel"]');
+    if(cancelBtn) cancelBtn.addEventListener('click', ()=>{ editingKey = null; render(); });
+    const resetBtn = card.querySelector('[data-act="reset"]');
+    if(resetBtn) resetBtn.addEventListener('click', async ()=>{
+      delete state[noteKey];
+      editingKey = null;
+      await saveDay(dayIndex, state);
+      render();
+    });
+
+    cardsEl.appendChild(card);
+  });
+
+  const pctDone = Math.round(coreDone / CORE_KEYS.length * 100);
+  document.getElementById('sumDay').textContent = (dayIndex+1);
+  document.getElementById('sumPct').textContent = pctDone + "%";
+
+  renderWeekDots();
+}
+
+function escapeHTML(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+async function renderWeekDots(){
+  const weekStart = dayIndex - mod(dayIndex,7);
+  const el = document.getElementById('weekdots');
+  el.innerHTML = "";
+  const real = new Date(); real.setHours(0,0,0,0);
+  for(let i=0;i<7;i++){
+    const idx = weekStart + i;
+    const state = await loadDay(idx);
+    const count = CORE_KEYS.filter(k=>state[k]).length;
+    const dot = document.createElement('div');
+    let cls = "dot";
+    if(count === CORE_KEYS.length) cls += " full";
+    else if(count > 0) cls += " partial";
+    const d = dateFromIndex(idx);
+    if(d.toDateString() === real.toDateString()) cls += " today";
+    dot.className = cls;
+    dot.title = weekdayNames[i];
+    dot.style.cursor = "pointer";
+    dot.addEventListener('click', ()=>{ editingKey=null; dayIndex = idx; render(); });
+    el.appendChild(dot);
+  }
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{ editingKey=null; dayIndex--; render(); });
+document.getElementById('nextBtn').addEventListener('click', ()=>{ editingKey=null; dayIndex++; render(); });
+document.getElementById('todayBtn').addEventListener('click', ()=>{
+  editingKey=null;
+  const real = new Date(); real.setHours(0,0,0,0);
+  dayIndex = Math.max(0, indexFromDate(real)); render();
+});
+document.getElementById('datePick').addEventListener('change', (e)=>{
+  editingKey=null;
+  const d = new Date(e.target.value + "T00:00:00");
+  dayIndex = indexFromDate(d); render();
+});
+
+// ---- drag-to-scrub on the rail ----
+(function(){
+  const rail = document.getElementById('rail');
+  let dragging = false;
+
+  function dayFromClientX(clientX){
+    const rect = rail.getBoundingClientRect();
+    const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round(frac * 89);
+  }
+
+  rail.addEventListener('pointerdown', (e)=>{
+    dragging = true;
+    editingKey = null;
+    rail.setPointerCapture(e.pointerId);
+    dayIndex = dayFromClientX(e.clientX);
+    render();
+  });
+  rail.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    const idx = dayFromClientX(e.clientX);
+    if(idx !== dayIndex){ dayIndex = idx; render(); }
+  });
+  rail.addEventListener('pointerup', ()=>{ dragging = false; });
+  rail.addEventListener('pointercancel', ()=>{ dragging = false; });
+})();
+
+await initStart();
+const real = new Date(); real.setHours(0,0,0,0);
+dayIndex = Math.max(0, indexFromDate(real));
+render();
+
+})();
+</script>
+</body>
+</html>
